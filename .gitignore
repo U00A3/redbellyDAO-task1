@@ -1,0 +1,13 @@
+node_modules/
+cache/
+artifacts/
+typechain-types/
+coverage/
+coverage.json
+.env
+deployments/*.local.json
+ui/dist/
+ui/node_modules/
+ui/.env
+/*.png
+Screenshot*.png

@@ -1,0 +1,12 @@
+{
+  "network": "redbellyTestnet",
+  "chainId": "153",
+  "deployer": "0xA2c6a3fC1E12dF79B9e3D099FaA2Ffe860450F76",
+  "deployedAt": "2026-06-21T16:23:25.659Z",
+  "contracts": {
+    "sybilProofToken": "0x629681eAB098D1c5B793bc04e8E1DFB7Dc13806F",
+    "permissionChecker": "0xf0da85AB0D065c46290501C3c138035fA8f9EE8F"
+  },
+  "bootstrap": "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+  "transferGated": true
+}

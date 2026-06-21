@@ -1,0 +1,28 @@
+{
+  "name": "sybil-proof-token-task1",
+  "version": "1.0.0",
+  "description": "Sybil-Proof ERC-20 (Anti-Bot Standard) — Redbelly Network",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network redbellyTestnet",
+    "deploy:local": "hardhat run scripts/deploy.ts --network hardhat",
+    "seed:demo": "hardhat run scripts/seed-demo.ts --network redbellyTestnet",
+    "demo:revert-mint": "hardhat run scripts/demo-revert-mint.ts --network redbellyTestnet",
+    "ui:dev": "npm run dev --prefix ui",
+    "ui:build": "npm run build --prefix ui"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@types/node": "^20.11.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.0",
+    "solidity-coverage": "^0.8.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  }
+}
