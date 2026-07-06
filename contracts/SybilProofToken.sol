@@ -69,8 +69,16 @@ contract SybilProofToken is ERC20, Ownable {
         transferGated = transferGated_;
     }
 
-    /// @notice Mint tokens to a KYC-verified address. Owner cannot bypass the gate.
-    function mint(address to, uint256 amount) external onlyOwner {
+    /// @notice Mint tokens to caller when they have chain permission (reviewer self-test path).
+    function mint(uint256 amount) external {
+        if (!permissionChecker.hasChainPermission(msg.sender)) {
+            revert KycVerificationRequiredForMint(msg.sender);
+        }
+        _mint(msg.sender, amount);
+    }
+
+    /// @notice Owner mints to a recipient; KYC gate on recipient — owner cannot bypass.
+    function mintTo(address to, uint256 amount) external onlyOwner {
         if (!permissionChecker.hasChainPermission(to)) {
             revert KycVerificationRequiredForMint(to);
         }

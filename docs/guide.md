@@ -101,7 +101,8 @@ constructor(
 
 | Function | Description |
 |----------|-------------|
-| `mint(address to, uint256 amount)` | Mint to KYC-verified `to` only |
+| `mint(uint256 amount)` | Any caller mints to self when KYC-verified |
+| `mintTo(address to, uint256 amount)` | Owner mints to KYC-verified recipient (admin airdrop) |
 | `setTransferGated(bool gated)` | Enable/disable transfer KYC gate |
 | `setPermissionChecker(address checker)` | Point to new eligibility adapter |
 
@@ -115,8 +116,21 @@ constructor(
 
 ### 4.2 Mint gate (non-bypassable)
 
+Public mint — any wallet may call; gate checks **caller**:
+
 ```solidity
-function mint(address to, uint256 amount) external onlyOwner {
+function mint(uint256 amount) external {
+    if (!permissionChecker.hasChainPermission(msg.sender)) {
+        revert KycVerificationRequiredForMint(msg.sender);
+    }
+    _mint(msg.sender, amount);
+}
+```
+
+Owner airdrop — recipient must pass KYC; owner **cannot** bypass:
+
+```solidity
+function mintTo(address to, uint256 amount) external onlyOwner {
     if (!permissionChecker.hasChainPermission(to)) {
         revert KycVerificationRequiredForMint(to);
     }
@@ -124,7 +138,7 @@ function mint(address to, uint256 amount) external onlyOwner {
 }
 ```
 
-The owner **must** pass the same check as any other minter path. There is no `mintUnchecked` or internal bypass.
+There is no `mintUnchecked` or internal bypass on either path.
 
 ### 4.3 Transfer gate (configurable)
 

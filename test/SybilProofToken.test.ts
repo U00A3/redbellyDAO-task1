@@ -2,32 +2,52 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { deployTokenFixture } from "./helpers/fixture";
 describe("SybilProofToken", () => {
-  it("mints to KYC-verified addresses", async () => {
+  it("allows KYC-verified wallet to mint to self", async () => {
     const fx = await deployTokenFixture();
     const amount = ethers.parseEther("100");
 
-    await expect(fx.token.connect(fx.owner).mint(fx.verified.address, amount))
+    await expect(fx.token.connect(fx.verified).mint(amount))
       .to.emit(fx.token, "Transfer")
       .withArgs(ethers.ZeroAddress, fx.verified.address, amount);
 
     expect(await fx.token.balanceOf(fx.verified.address)).to.equal(amount);
   });
 
-  it("reverts mint for unverified wallet with KYC-specific error", async () => {
+  it("reverts public mint for unverified wallet with KYC-specific error", async () => {
+    const fx = await deployTokenFixture();
+    const amount = ethers.parseEther("50");
+
+    await expect(fx.token.connect(fx.unverified).mint(amount))
+      .to.be.revertedWithCustomError(fx.token, "KycVerificationRequiredForMint")
+      .withArgs(fx.unverified.address);
+  });
+
+  it("owner mintTo succeeds for KYC-verified recipient", async () => {
+    const fx = await deployTokenFixture();
+    const amount = ethers.parseEther("100");
+
+    await expect(fx.token.connect(fx.owner).mintTo(fx.verified.address, amount))
+      .to.emit(fx.token, "Transfer")
+      .withArgs(ethers.ZeroAddress, fx.verified.address, amount);
+
+    expect(await fx.token.balanceOf(fx.verified.address)).to.equal(amount);
+  });
+
+  it("reverts owner mintTo for unverified recipient with KYC-specific error", async () => {
     const fx = await deployTokenFixture();
     const amount = ethers.parseEther("50");
 
     await expect(
-      fx.token.connect(fx.owner).mint(fx.unverified.address, amount)
+      fx.token.connect(fx.owner).mintTo(fx.unverified.address, amount)
     )
       .to.be.revertedWithCustomError(fx.token, "KycVerificationRequiredForMint")
       .withArgs(fx.unverified.address);
   });
 
-  it("does not allow owner to bypass mint KYC gate", async () => {
+  it("does not allow owner to bypass mint KYC gate via mintTo", async () => {
     const fx = await deployTokenFixture();
     await expect(
-      fx.token.connect(fx.owner).mint(fx.unverified.address, 1n)
+      fx.token.connect(fx.owner).mintTo(fx.unverified.address, 1n)
     ).to.be.revertedWithCustomError(fx.token, "KycVerificationRequiredForMint");
   });
 
@@ -35,7 +55,7 @@ describe("SybilProofToken", () => {
     const fx = await deployTokenFixture(true);
     const amount = ethers.parseEther("10");
 
-    await fx.token.connect(fx.owner).mint(fx.verified.address, amount);
+    await fx.token.connect(fx.owner).mintTo(fx.verified.address, amount);
     await fx.permission.setPermission(fx.verified.address, false);
 
     await expect(
@@ -49,7 +69,7 @@ describe("SybilProofToken", () => {
     const fx = await deployTokenFixture(true);
     const amount = ethers.parseEther("10");
 
-    await fx.token.connect(fx.owner).mint(fx.verified.address, amount);
+    await fx.token.connect(fx.owner).mintTo(fx.verified.address, amount);
 
     await expect(
       fx.token.connect(fx.verified).transfer(fx.unverified.address, amount)
@@ -62,7 +82,7 @@ describe("SybilProofToken", () => {
     const fx = await deployTokenFixture(false);
     const amount = ethers.parseEther("25");
 
-    await fx.token.connect(fx.owner).mint(fx.verified.address, amount);
+    await fx.token.connect(fx.owner).mintTo(fx.verified.address, amount);
 
     await expect(
       fx.token.connect(fx.verified).transfer(fx.unverified.address, amount)
@@ -77,7 +97,7 @@ describe("SybilProofToken", () => {
     const fx = await deployTokenFixture(true);
     const amount = ethers.parseEther("5");
 
-    await fx.token.connect(fx.owner).mint(fx.verified.address, amount);
+    await fx.token.connect(fx.owner).mintTo(fx.verified.address, amount);
 
     await expect(
       fx.token.connect(fx.verified).transfer(fx.unverified.address, amount)
@@ -96,7 +116,7 @@ describe("SybilProofToken", () => {
     expect(await fx.token.transferGated()).to.equal(true);
 
     await fx.permission.setPermission(fx.verified.address, true);
-    await fx.token.connect(fx.owner).mint(fx.verified.address, amount);
+    await fx.token.connect(fx.owner).mintTo(fx.verified.address, amount);
     await expect(
       fx.token.connect(fx.verified).transfer(fx.unverified.address, amount)
     ).to.be.revertedWithCustomError(fx.token, "KycVerificationRequiredForTransfer");
@@ -114,7 +134,7 @@ describe("SybilProofToken", () => {
       .to.emit(fx.token, "EligibilityCheckerUpdated")
       .withArgs(previous, await nextChecker.getAddress());
 
-    await fx.token.connect(fx.owner).mint(fx.unverified.address, 100n);
+    await fx.token.connect(fx.owner).mintTo(fx.unverified.address, 100n);
     expect(await fx.token.balanceOf(fx.unverified.address)).to.equal(100n);
   });
 

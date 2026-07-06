@@ -51,12 +51,11 @@ export default function TokenPanel() {
     owner && address && owner.toLowerCase() === address.toLowerCase();
 
   function mintSelf() {
-    if (!address) return;
     writeContract({
       address: tokenAddress,
       abi: TOKEN_ABI,
       functionName: "mint",
-      args: [address, parseEther(mintAmount || "0")],
+      args: [parseEther(mintAmount || "0")],
     });
   }
 
@@ -65,7 +64,7 @@ export default function TokenPanel() {
     writeContract({
       address: tokenAddress,
       abi: TOKEN_ABI,
-      functionName: "mint",
+      functionName: "mintTo",
       args: [recipient, parseEther(mintAmount || "0")],
     });
   }
@@ -112,28 +111,43 @@ export default function TokenPanel() {
         </div>
       </div>
 
+      <div className="deposit-card">
+        <h3 className="panel-heading">Mint (KYC-gated)</h3>
+        <p className="overview-lead">
+          Any wallet may call <code>mint(amount)</code>. Reverts with{" "}
+          <code>KycVerificationRequiredForMint</code> until chain permission is granted.
+        </p>
+        <label className="field-label">
+          Amount (SYBL)
+          <input
+            className="field-input"
+            value={mintAmount}
+            onChange={(e) => setMintAmount(e.target.value)}
+            placeholder="100"
+          />
+        </label>
+        <div className="action-row">
+          <button
+            type="button"
+            className="btn-connect btn-sm"
+            disabled={!enabled || isPending || confirming}
+            onClick={mintSelf}
+          >
+            Mint to my wallet
+          </button>
+        </div>
+        {!hasPermission && !permLoading && (
+          <p className="footnote">
+            Without KYC, mint will revert on-chain with{" "}
+            <code>KycVerificationRequiredForMint(yourAddress)</code>. Complete onboarding, then
+            retry.
+          </p>
+        )}
+      </div>
+
       {isOwner && (
         <div className="deposit-card">
-          <h3 className="panel-heading">Owner · mint (KYC-gated)</h3>
-          <label className="field-label">
-            Amount (SYBL)
-            <input
-              className="field-input"
-              value={mintAmount}
-              onChange={(e) => setMintAmount(e.target.value)}
-              placeholder="100"
-            />
-          </label>
-          <div className="action-row">
-            <button
-              type="button"
-              className="btn-connect btn-sm"
-              disabled={!enabled || isPending || confirming || !hasPermission}
-              onClick={mintSelf}
-            >
-              Mint to self
-            </button>
-          </div>
+          <h3 className="panel-heading">Owner · mintTo (admin airdrop)</h3>
           <label className="field-label">
             Mint to address
             <input
@@ -152,8 +166,7 @@ export default function TokenPanel() {
             Mint to recipient
           </button>
           <p className="footnote">
-            Reverts with <code>KycVerificationRequiredForMint</code> if recipient lacks chain
-            permission — owner cannot bypass.
+            Owner-only <code>mintTo</code> — recipient must still pass KYC; owner cannot bypass.
           </p>
         </div>
       )}

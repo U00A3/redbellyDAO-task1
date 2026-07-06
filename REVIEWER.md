@@ -6,12 +6,13 @@
 |-----------|---------------------|
 | OpenZeppelin ERC-20 (no custom token impl) | `contracts/SybilProofToken.sol` extends `ERC20`, `Ownable` |
 | `hasChainPermission` on gated actions | `RedbellyPermissionChecker.sol` → `Permission.isAllowed` |
-| Mint gate non-bypassable for owner | `mint()` reverts `KycVerificationRequiredForMint`; test *does not allow owner to bypass* |
+| Mint gate non-bypassable for owner | `mint()` / `mintTo()` revert `KycVerificationRequiredForMint`; tests *does not allow owner to bypass* |
+| Public mint for reviewers | `mint(uint256)` — any wallet; KYC gate on caller (see § Reviewer self-test mint) |
 | Configurable transfer gate | `transferGated`, `setTransferGated`, toggle test |
 | Admin update eligibility checker | `setPermissionChecker` + `EligibilityCheckerUpdated` event |
 | KYC-specific error messages | custom errors (not generic `require` strings) |
 | React + IndividualOnboardingSDK + `useHasChainPermission` | `ui/src/lib/eligibility-sdk/` (SDK-compatible; see § Eligibility SDK below) |
-| Coverage ≥ 90% | `npm run coverage` |
+| Coverage ≥ 90% | `docs/coverage/coverage-final.json` (100% lines; regenerate: `npm run coverage`) |
 | Deploy script chain 153 | `scripts/deploy.ts`, `hardhat.config.ts` |
 | Gas check ≤ 50k | test *KYC verification check uses less than 50k gas* |
 
@@ -24,7 +25,26 @@ npm run coverage
 npm run ui:build
 ```
 
-Expected: all tests pass, line coverage ≥ 90%, UI builds without errors.
+Expected: all tests pass (16), line coverage ≥ 90% (artifact: [`docs/coverage/coverage-final.json`](docs/coverage/coverage-final.json)), UI builds without errors.
+
+## Reviewer self-test mint (live dashboard — no deployer key)
+
+This is the quality-benchmark path: **unverified wallet reverts on mint, succeeds after KYC**.
+
+1. Open [live dashboard](https://redbelly-dao-task1.vercel.app/) on Redbelly Testnet (chain 153).
+2. Connect a wallet **without** testnet Permission (fresh wallet is fine).
+3. In **Mint (KYC-gated)**, enter an amount and click **Mint to my wallet**.
+4. Confirm the transaction **reverts** with `KycVerificationRequiredForMint(yourAddress)` on [Routescan](https://redbelly.testnet.routescan.io).
+5. Open **Individual onboarding SDK** → complete KYC + testnet unlock via [Redbelly Access dApp](https://vine.redbelly.network/identity/user-access/).
+6. Wait for **Chain permission (KYC)** badge → **Verified**, then **Mint to my wallet** again → success.
+
+No deployer `PRIVATE_KEY` required — `mint(uint256)` is callable by any wallet; only `hasChainPermission(msg.sender)` gates it.
+
+Optional scripted demo (deployer funds a random unverified wallet for gas):
+
+```bash
+npm run demo:revert-mint   # unverified caller → KycVerificationRequiredForMint
+```
 
 ## Walkthrough options
 
@@ -32,9 +52,10 @@ Expected: all tests pass, line coverage ≥ 90%, UI builds without errors.
 
 1. `cd ui && npm install && npm run dev`
 2. Connect wallet on Redbelly Testnet (chain 153)
-3. Open **Individual onboarding SDK** — KYC flow entry point
-4. Observe **Chain permission (KYC)** badge via `useHasChainPermission`
-5. If `VITE_TOKEN_ADDRESS` is set, try mint/transfer and confirm KYC gating
+3. Try **Mint to my wallet** before KYC → `KycVerificationRequiredForMint`
+4. Open **Individual onboarding SDK** — KYC flow entry point
+5. After unlock, mint again and confirm success
+6. Observe **Chain permission (KYC)** badge via `useHasChainPermission`
 
 ### Option B — Full testnet demo
 
@@ -53,8 +74,9 @@ npm test
 
 Key scenarios:
 
-- Unverified mint → `KycVerificationRequiredForMint`
-- Verified mint → success
+- Unverified `mint(uint256)` → `KycVerificationRequiredForMint`
+- Verified `mint(uint256)` → success
+- Owner `mintTo` unverified → `KycVerificationRequiredForMint`
 - Transfer gated / ungated toggle
 - `setPermissionChecker` admin path
 
@@ -131,10 +153,17 @@ Test `KYC verification check uses less than 50k gas` asserts `MockPermissionChec
 
 ```
 Repo: Task 1 — Sybil-Proof ERC-20 (Anti-Bot Standard)
+Live: https://redbelly-dao-task1.vercel.app/
 Walkthrough: REVIEWER.md | Guide: docs/guide.md
 
 Quick verify:
-  npm install && npm test && npm run coverage && npm run ui:build
+  npm install && npm test && npm run ui:build
+  Coverage artifact: docs/coverage/coverage-final.json (100% lines)
+
+Reviewer self-test mint (no deployer key):
+  1. Connect wallet without KYC on live dashboard
+  2. Mint to my wallet → KycVerificationRequiredForMint
+  3. Complete KYC via Access dApp → mint succeeds
 
 IndividualOnboardingSDK / Averer:
   - Full widget requires Averer developer API key (per Redbelly Eligibility SDK docs).
@@ -145,7 +174,7 @@ IndividualOnboardingSDK / Averer:
   - When API key arrives: install @redbellynetwork/eligibility-sdk, remove Vite alias, set VITE_ELIGIBILITY_SDK_API_KEY.
 
 On-chain demo:
-  - Unverified mint → KycVerificationRequiredForMint
-  - After testnet Permission unlock → mint succeeds
+  - mint(uint256) callable by any wallet; gate on msg.sender
+  - Owner mintTo still KYC-gated (cannot bypass)
   - setTransferGated toggles transfer KYC gate (covered in tests)
 ```

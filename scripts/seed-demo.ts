@@ -37,7 +37,7 @@ async function main() {
   }
 
   const amount = ethers.parseEther("1000");
-  const tx = await token.mint(deployer.address, amount);
+  const tx = await token.mint(amount);
   await tx.wait();
   console.log("Minted", ethers.formatEther(amount), "SYBL to", deployer.address);
   console.log("Tx:", tx.hash);

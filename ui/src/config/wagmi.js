@@ -100,6 +100,13 @@ export const TOKEN_ABI = [
     name: "mint",
     type: "function",
     stateMutability: "nonpayable",
+    inputs: [{ name: "amount", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    name: "mintTo",
+    type: "function",
+    stateMutability: "nonpayable",
     inputs: [
       { name: "to", type: "address" },
       { name: "amount", type: "uint256" },

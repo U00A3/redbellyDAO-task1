@@ -2,10 +2,10 @@
   "network": "redbellyTestnet",
   "chainId": "153",
   "deployer": "0xA2c6a3fC1E12dF79B9e3D099FaA2Ffe860450F76",
-  "deployedAt": "2026-06-21T16:23:25.659Z",
+  "deployedAt": "2026-07-06T19:21:06.316Z",
   "contracts": {
-    "sybilProofToken": "0x629681eAB098D1c5B793bc04e8E1DFB7Dc13806F",
-    "permissionChecker": "0xf0da85AB0D065c46290501C3c138035fA8f9EE8F"
+    "sybilProofToken": "0x28b4841d24cEB8908aB042D14fdC47Ff4F41863d",
+    "permissionChecker": "0xb8D9334984A070A8073a06EcB89fDe777eA6432C"
   },
   "bootstrap": "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
   "transferGated": true

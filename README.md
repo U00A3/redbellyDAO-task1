@@ -5,8 +5,8 @@
 [![Hardhat](https://img.shields.io/badge/Hardhat-2.x-FFF1E7?logo=hardhat&logoColor=000&style=plastic)](https://hardhat.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black&style=plastic)](https://react.dev/)
 [![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-4.9-4E5EE4?logo=openzeppelin&logoColor=white&style=plastic)](https://openzeppelin.com/contracts/)
-[![Tests](https://img.shields.io/badge/tests-14%20passing-success?style=plastic)](#quick-start)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=plastic)](#quick-start)
+[![Tests](https://img.shields.io/badge/tests-16%20passing-success?style=plastic)](#quick-start)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=plastic)](docs/coverage/coverage-final.json)
 [![Live dashboard](https://img.shields.io/badge/Dashboard-redbelly--dao--task1.vercel.app-c41e3a?style=plastic)](https://redbelly-dao-task1.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=plastic)](LICENSE)
 
@@ -23,12 +23,13 @@ Community submission for **Redbelly DAO Task 1** - Sybil-Proof ERC-20 (Anti-Bot 
 | Reviewer walkthrough (SDK shim, Averer API key note) | [`REVIEWER.md`](REVIEWER.md) |
 | OpenZeppelin ERC-20 base | `contracts/SybilProofToken.sol` |
 | `hasChainPermission` on gated actions | `SybilProofToken.sol`, `RedbellyPermissionChecker.sol` |
-| Non-bypassable mint gate | tests: owner cannot mint to unverified |
+| Non-bypassable mint gate | `mint()` / `mintTo()` — KYC on caller/recipient; owner cannot bypass |
+| Public mint (reviewer self-test) | `mint(uint256)` — any KYC'd wallet; see [`REVIEWER.md`](REVIEWER.md#reviewer-self-test-mint-live-dashboard--no-deployer-key) |
 | Configurable transfer gate | `setTransferGated`, toggle tests |
 | Admin update eligibility checker | `setPermissionChecker` |
 | KYC-specific revert messages | `KycVerificationRequiredForMint`, `KycVerificationRequiredForTransfer` |
 | React + IndividualOnboarding + `useHasChainPermission` | `ui/` — shim until Averer API key; see [`REVIEWER.md`](REVIEWER.md) |
-| Unit tests, coverage ≥ 90% | `npm test`, `npm run coverage` |
+| Unit tests, coverage ≥ 90% | `npm test`, artifact [`docs/coverage/coverage-final.json`](docs/coverage/coverage-final.json) |
 | 5–7 page integration guide | [`docs/guide.md`](docs/guide.md) |
 | Testnet deploy + verified source | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [live dashboard](https://redbelly-dao-task1.vercel.app/) |
 
@@ -38,7 +39,7 @@ Community submission for **Redbelly DAO Task 1** - Sybil-Proof ERC-20 (Anti-Bot 
 npm install
 npm run compile
 npm test
-npm run coverage    # target ≥ 90% line coverage
+npm run coverage    # regenerate docs/coverage/coverage-final.json
 ```
 
 Deploy to testnet (requires `PRIVATE_KEY` in `.env` — see `.env.example`):
@@ -68,6 +69,7 @@ npm run ui:build
 | [`REVIEWER.md`](REVIEWER.md) | DAO reviewer walkthrough |
 | [`docs/guide.md`](docs/guide.md) | Integration guide (~6 pages) |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Testnet addresses and demo transactions |
+| [`docs/coverage/`](docs/coverage/) | Committed coverage artifact (100% lines) |
 | [`docs/VERCEL.md`](docs/VERCEL.md) | UI deployment on Vercel ([live](https://redbelly-dao-task1.vercel.app/)) |
 
 ## Screenshots
@@ -98,10 +100,10 @@ SybilProofToken.mint / transfer (when gated)
 
 | Contract | Address |
 |----------|---------|
-| SybilProofToken (SYBL) | [`0x629681eAB098D1c5B793bc04e8E1DFB7Dc13806F`](https://redbelly.testnet.routescan.io/address/0x629681eAB098D1c5B793bc04e8E1DFB7Dc13806F) |
-| RedbellyPermissionChecker | [`0xf0da85AB0D065c46290501C3c138035fA8f9EE8F`](https://redbelly.testnet.routescan.io/address/0xf0da85AB0D065c46290501C3c138035fA8f9EE8F) |
+| SybilProofToken (SYBL) | [`0x28b4841d24cEB8908aB042D14fdC47Ff4F41863d`](https://redbelly.testnet.routescan.io/address/0x28b4841d24cEB8908aB042D14fdC47Ff4F41863d) |
+| RedbellyPermissionChecker | [`0xb8D9334984A070A8073a06EcB89fDe777eA6432C`](https://redbelly.testnet.routescan.io/address/0xb8D9334984A070A8073a06EcB89fDe777eA6432C) |
 
-**Verified demo:** unverified mint reverts [`0x165bf83…`](https://redbelly.testnet.routescan.io/tx/0x165bf83af12bec27506fb30f2ee3c6e5a575e0dd91d7fde15483f41c51f2b0c1); KYC mint OK [`0x9c0ddef…`](https://redbelly.testnet.routescan.io/tx/0x9c0ddefec9cb7c9a983d6245458abb54d62c2e11da357eca0593cb8bb8075439).
+**Verified demo:** KYC mint OK [`0x54b1660…`](https://redbelly.testnet.routescan.io/tx/0x54b1660effff2f6c51b86f6b4c4f5403dfd5ab21d7e308d5b248f8c27e3b1d87). Reviewer self-test: [live dashboard](https://redbelly-dao-task1.vercel.app/) → mint before/after KYC (see [`REVIEWER.md`](REVIEWER.md#reviewer-self-test-mint-live-dashboard--no-deployer-key)).
 
 Explorer: https://redbelly.testnet.routescan.io
 
