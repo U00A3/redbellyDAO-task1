@@ -30,7 +30,7 @@ Community submission for **Redbelly DAO Task 1** - Sybil-Proof ERC-20 (Anti-Bot 
 | KYC-specific revert messages | `KycVerificationRequiredForMint`, `KycVerificationRequiredForTransfer` |
 | React + IndividualOnboarding + `useHasChainPermission` | `ui/` — shim until Averer API key; see [`REVIEWER.md`](REVIEWER.md) |
 | Unit tests, coverage ≥ 90% | `npm test`, artifact [`docs/coverage/coverage-final.json`](docs/coverage/coverage-final.json) |
-| 5–7 page integration guide | [`docs/guide.md`](docs/guide.md) |
+| 5–7 page integration guide | [`docs/guide.md`](docs/guide.md) — incl. §9 Troubleshooting |
 | Testnet deploy + verified source | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [live dashboard](https://redbelly-dao-task1.vercel.app/) |
 
 ## Quick start
@@ -67,7 +67,7 @@ npm run ui:build
 | Document | Description |
 |----------|-------------|
 | [`REVIEWER.md`](REVIEWER.md) | DAO reviewer walkthrough |
-| [`docs/guide.md`](docs/guide.md) | Integration guide (~6 pages) |
+| [`docs/guide.md`](docs/guide.md) | Integration guide (~6 pages, troubleshooting §9) |
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Testnet addresses and demo transactions |
 | [`docs/coverage/`](docs/coverage/) | Committed coverage artifact (100% lines) |
 | [`docs/VERCEL.md`](docs/VERCEL.md) | UI deployment on Vercel ([live](https://redbelly-dao-task1.vercel.app/)) |
