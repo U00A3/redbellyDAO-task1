@@ -2,8 +2,8 @@ node_modules/
 cache/
 artifacts/
 typechain-types/
-coverage/
-coverage.json
+/coverage/
+/coverage.json
 .env
 deployments/*.local.json
 ui/dist/
